@@ -30,6 +30,15 @@ public class ThermalSensor : Sensor, IRevealable
             : "No type revealed yet";
     }
 
+    public SensorType? RevealCorrectType(List<SensorType> requiredTypes)
+    {
+        if (revealedType == null && requiredTypes.Any())
+        {
+            revealedType = requiredTypes.First();
+        }
+        return revealedType;
+    }
+
     public override string GetStatus()
     {
         var baseStatus = base.GetStatus();
