@@ -38,7 +38,7 @@ public class DatabaseService
             PersonId = personId,
             Action = action,
             Details = details,
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.UtcNow
         };
 
         _context.GameLogs.Add(log);
