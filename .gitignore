@@ -287,4 +287,4 @@ FodyWeavers.xsd
 *.sln.iml 
 
 # appsetting.json
-appsetting.json
+appsettings.json
