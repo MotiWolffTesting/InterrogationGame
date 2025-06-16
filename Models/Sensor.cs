@@ -1,8 +1,9 @@
-namespace InterrogationGame.Models;
+namespace InterrogationGame.Models.Sensors;
 
-public abstract class Sensor
+public abstract class Sensor : ISensor
 {
     // Properties of each sensor - not all properties are required for each sensor
+    protected const int MaxActivations = 3;
     public SensorType Type { get; protected set; }
     public double BatteryLevel { get; protected set; } = 100.0;
     public bool IsActive { get; protected set; }
@@ -14,12 +15,20 @@ public abstract class Sensor
     {
         if (BatteryLevel <= 0) return false;
         if (CooldownTurns > 0 && currentTurn - LastActivationTurn < CooldownTurns) return false;
+        if (ActivationCount >= MaxActivations) return false;
         return true;
     }
 
-    public virtual void Ativate(int currentTurn)
+    public virtual void Activate(int currentTurn)
     {
-        if (!CanActivate(currentTurn)) return;
+        if (!CanActivate(currentTurn))
+        {
+            Console.WriteLine($"{GetType().Name} cannot be activated: " +
+                            (BatteryLevel <= 0 ? "Battery depleted" :
+                             ActivationCount >= MaxActivations ? "Max activations reached" :
+                             "On cooldown"));
+            return;
+        }
 
         LastActivationTurn = currentTurn;
         ActivationCount++;
