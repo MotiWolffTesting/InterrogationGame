@@ -1,6 +1,6 @@
 ﻿using InterrogationGame.Data;
 using InterrogationGame.Services;
-using InterrogationGame;
+using InterrogationGame.Game;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;

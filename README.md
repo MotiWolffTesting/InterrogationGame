@@ -27,8 +27,10 @@ This game simulates an interrogation scenario where players use different types 
 - **Implementation**: `SensorSlots` list in terrorist classes
 - **Requirement**: Activate method that returns matching sensor count
 - **Implementation**: `ActivateAllSensors()` and `GetCorrectSensorCount()` in `GameManager`
+- **Location**: `Game/GameManager.cs`
 - **Requirement**: Menu asking player which sensor to add
 - **Implementation**: `PromptForSensor()` method in `ConsoleGame`
+- **Location**: `Game/ConsoleGame.cs`
 - **Requirement**: Continue until X/X → agent exposed
 - **Implementation**: `CheckForVictory()` method with proper victory condition
 
@@ -39,6 +41,7 @@ This game simulates an interrogation scenario where players use different types 
 - **Implementation**: `ITerrorist` interface with `Terrorist` base class and concrete implementations
 - **Requirement**: Game/InvestigationManager class
 - **Implementation**: `GameManager` class handling core game logic
+- **Location**: `Game/GameManager.cs`
 
 ### ✅ Phase 2 - Extension Requirements (FULLY IMPLEMENTED)
 
@@ -76,6 +79,9 @@ InterrogationGame/
 │   ├── GameDbContext.cs     # Entity Framework context
 │   ├── InitialData.cs       # Database seeding
 │   └── DesignTimeDbContextFactory.cs
+├── Game/                    # Core game logic and interface
+│   ├── ConsoleGame.cs       # Console interface and game flow
+│   └── GameManager.cs       # Core game logic and state management
 ├── Models/                  # Core game models
 │   ├── Sensors/            # Sensor implementations
 │   │   ├── Interfaces/     # Sensor capability interfaces
@@ -101,8 +107,6 @@ InterrogationGame/
 │   └── GameLog.cs          # Game action logging
 ├── Services/               # Game services
 │   └── DatabaseService.cs  # Database operations
-├── ConsoleGame.cs          # Console interface and game flow
-├── GameManager.cs          # Core game logic and state management
 └── Program.cs             # Application entry point with DI
 ```
 

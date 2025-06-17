@@ -3,7 +3,7 @@ using InterrogationGame.Models.Sensors;
 using InterrogationGame.Models.Terrorists;
 using InterrogationGame.Services;
 
-namespace InterrogationGame;
+namespace InterrogationGame.Game;
 
 public class GameManager
 {
