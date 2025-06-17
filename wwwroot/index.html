@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interrogation Game - Web Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+
+        .sensor-slot {
+            min-height: 120px;
+            border: 2px dashed #6c757d;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sensor-slot:hover {
+            border-color: #0d6efd;
+            background: rgba(13, 110, 253, 0.1);
+        }
+
+        .sensor-slot.occupied {
+            border-style: solid;
+            border-color: #198754;
+            background: rgba(25, 135, 84, 0.1);
+        }
+
+        .sensor-slot.correct {
+            border-color: #198754;
+            background: rgba(25, 135, 84, 0.2);
+        }
+
+        .sensor-slot.incorrect {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        .sensor-type {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .sensor-type:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .sensor-type:active {
+            cursor: grabbing;
+        }
+
+        .progress-custom {
+            height: 25px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-custom .progress-bar {
+            border-radius: 12px;
+            background: linear-gradient(45deg, #198754, #20c997);
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        .table-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-custom th {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+        }
+
+        .table-custom td {
+            border: none;
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+        }
+
+        .victory-modal .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+        }
+
+        .feedback-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .hierarchy-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .hierarchy-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .hierarchy-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #0d6efd;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Theme and Sound Toggle Styles */
+        .theme-toggle, .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .sound-toggle {
+            right: 80px;
+        }
+
+        .theme-toggle:hover, .sound-toggle:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        body.dark-mode .glass-card {
+            background: rgba(45, 45, 45, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .sensor-slot {
+            background: rgba(45, 45, 45, 0.8);
+        }
+
+        body.dark-mode .sensor-type {
+            background: rgba(45, 45, 45, 0.8);
+        }
+
+        body.dark-mode .info-card {
+            background: rgba(45, 45, 45, 0.8);
+        }
+
+        body.dark-mode .table-custom {
+            background: rgba(45, 45, 45, 0.8);
+        }
+
+        body.dark-mode .hierarchy-input {
+            background: rgba(45, 45, 45, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
+
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" onclick="toggleSound()" title="Toggle Sound Effects">
+        <i class="fas fa-volume-up" id="sound-icon"></i>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="buttonClick" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="sensorActivate" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="interrogation" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="victory" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="error" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h1 class="display-4 text-white fw-bold mb-2">
+                        <i class="fas fa-search me-3"></i>Interrogation Game
+                    </h1>
+                    <p class="lead text-white-50">Advanced Sensor Technology Interface</p>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="text-center d-none" id="loading">
+                    <div class="spinner-border loading-spinner text-light mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-white">Processing...</p>
+                </div>
+
+                <!-- Main Game Panel -->
+                <div class="glass-card p-4" id="gamePanel">
+                    <!-- Terrorist Information -->
+                    <div class="row mb-4" id="terroristInfo">
+                        <!-- Will be populated dynamically -->
+                    </div>
+
+                    <!-- Clue Panel -->
+                    <div class="row mb-3 d-none" id="cluePanel">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-3">
+                                <button class="btn btn-outline-light btn-custom" id="clueBtn">
+                                    <i class="fas fa-lightbulb me-2"></i>Show Clue About Superior
+                                </button>
+                                <span id="clueText" class="text-white"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Interrogation Panel -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="glass-card p-3">
+                                <h5 class="text-white mb-3"><i class="fas fa-brain me-2"></i>AI Interrogation</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="text-white fw-bold mb-2">Personality:</label>
+                                            <span id="personalityDisplay" class="badge bg-info ms-2">Unknown</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="text-white fw-bold mb-2">Interrogation Count:</label>
+                                            <span id="interrogationCount" class="text-white ms-2">0</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="text-white fw-bold mb-2">Has Lied:</label>
+                                            <span id="hasLiedDisplay" class="badge bg-warning ms-2">Unknown</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="questionInput" class="text-white fw-bold mb-2">Ask a Question:</label>
+                                            <input type="text" id="questionInput" class="form-control hierarchy-input" 
+                                                   placeholder="e.g., Who is your superior?">
+                                        </div>
+                                        <button class="btn btn-warning btn-custom" id="interrogateBtn">
+                                            <i class="fas fa-question-circle me-2"></i>Interrogate
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div id="interrogationResponse" class="feedback-item d-none">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong id="responseText"></strong>
+                                                <br><small id="responseDetails" class="text-white-50"></small>
+                                                <br><small id="aiAnalysis" class="text-info"></small>
+                                            </div>
+                                            <i class="fas fa-comments text-warning"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hierarchy Panel -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <label class="text-white fw-bold mb-0">Submit Suspected Hierarchy:</label>
+                                <input type="text" id="hierarchyInput" class="form-control hierarchy-input" 
+                                       placeholder="e.g. 4,2,1" style="max-width: 200px;">
+                                <button class="btn btn-primary btn-custom" id="hierarchyBtn">
+                                    <i class="fas fa-check me-2"></i>Check Hierarchy
+                                </button>
+                                <span id="hierarchyResult" class="text-white"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Score Panel -->
+                    <div class="row mb-3 d-none" id="scorePanel">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <label class="text-white fw-bold mb-0">Enter your name to save your score:</label>
+                                <input type="text" id="playerName" class="form-control hierarchy-input" 
+                                       placeholder="Your name" style="max-width: 200px;">
+                                <button class="btn btn-success btn-custom" id="scoreBtn">
+                                    <i class="fas fa-trophy me-2"></i>Submit Score
+                                </button>
+                                <span id="scoreMsg" class="text-white"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white fw-bold">Progress: <span id="progressText">0/0</span></span>
+                                <span class="text-white fw-bold">Turn: <span id="turnText">1</span></span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar" id="progressFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sensor Grid -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-white mb-3"><i class="fas fa-microchip me-2"></i>Sensor Slots</h5>
+                            <div class="row" id="sensorGrid">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sensor Palette -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="glass-card p-3">
+                                <h5 class="text-white mb-3 text-center"><i class="fas fa-tools me-2"></i>Available Sensors</h5>
+                                <div class="row" id="sensorTypes">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="row mb-4">
+                        <div class="col-12 text-center">
+                            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                <button class="btn btn-primary btn-custom" id="startBtn">
+                                    <i class="fas fa-play me-2"></i>Start New Game
+                                </button>
+                                <button class="btn btn-success btn-custom" id="assignBtn" disabled>
+                                    <i class="fas fa-paper-plane me-2"></i>Assign Sensors
+                                </button>
+                                <button class="btn btn-info btn-custom" id="endTurnBtn" disabled>
+                                    <i class="fas fa-forward me-2"></i>End Turn
+                                </button>
+                                <button class="btn btn-danger btn-custom" id="resetBtn">
+                                    <i class="fas fa-redo me-2"></i>Reset Game
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Panel -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="glass-card p-3">
+                                <h5 class="text-white mb-3"><i class="fas fa-comments me-2"></i>Sensor Feedback</h5>
+                                <div id="feedbackContent" class="max-height-300 overflow-auto">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard and People List -->
+                    <div class="row">
+                        <div class="col-12 col-lg-6 mb-4">
+                            <div class="glass-card p-3">
+                                <h5 class="text-white mb-3"><i class="fas fa-trophy me-2"></i>Leaderboard</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-custom table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Rank</th>
+                                                <th>Name</th>
+                                                <th>Points</th>
+                                                <th>Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="leaderboardTable">
+                                            <!-- Will be populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 mb-4">
+                            <div class="glass-card p-3">
+                                <h5 class="text-white mb-3"><i class="fas fa-users me-2"></i>All People (IDs & Names)</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-custom table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Superior ID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="peopleListTable">
+                                            <!-- Will be populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal fade" id="victoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content victory-modal">
+                <div class="modal-body text-center p-4">
+                    <h2 class="text-white mb-3">
+                        <i class="fas fa-trophy text-warning me-2"></i>Mission Accomplished!
+                    </h2>
+                    <p id="victoryMessage" class="text-white mb-4"></p>
+                    <button class="btn btn-light btn-custom" onclick="closeVictoryModal()">
+                        <i class="fas fa-check me-2"></i>Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentGame = null;
+        let selectedSensors = [];
+        let availableSensors = [];
+
+        // Theme and Sound Management
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let soundEnabled = localStorage.getItem('sound') || 'true';
+        
+        // Initialize theme and sound
+        document.body.classList.toggle('dark-mode', currentTheme === 'dark');
+        updateThemeIcon();
+        updateSoundIcon();
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.classList.toggle('dark-mode', currentTheme === 'dark');
+            localStorage.setItem('theme', currentTheme);
+            updateThemeIcon();
+            playSound('buttonClick');
+        }
+
+        function toggleSound() {
+            soundEnabled = soundEnabled === 'true' ? 'false' : 'true';
+            localStorage.setItem('sound', soundEnabled);
+            updateSoundIcon();
+            if (soundEnabled === 'true') {
+                playSound('buttonClick');
+            }
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (currentTheme === 'dark') {
+                icon.className = 'fas fa-moon';
+            } else {
+                icon.className = 'fas fa-sun';
+            }
+        }
+
+        function updateSoundIcon() {
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled === 'true') {
+                icon.className = 'fas fa-volume-up';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+            }
+        }
+
+        function playSound(soundId) {
+            if (soundEnabled === 'true') {
+                const audio = document.getElementById(soundId);
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            }
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAvailableSensors();
+            setupEventListeners();
+            showLoading(false);
+            document.getElementById('clueBtn').addEventListener('click', fetchClue);
+            document.getElementById('hierarchyBtn').addEventListener('click', submitHierarchy);
+            document.getElementById('scoreBtn').addEventListener('click', submitScore);
+            loadLeaderboard();
+            loadPeopleList();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('startBtn').addEventListener('click', startNewGame);
+            document.getElementById('assignBtn').addEventListener('click', assignSensors);
+            document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+            document.getElementById('resetBtn').addEventListener('click', resetGame);
+            document.getElementById('interrogateBtn').addEventListener('click', interrogate);
+        }
+
+        async function loadAvailableSensors() {
+            try {
+                const response = await fetch('/api/WebGame/available-sensors');
+                const data = await response.json();
+                if (data.success) {
+                    availableSensors = data.sensors;
+                    renderSensorTypes();
+                }
+            } catch (error) {
+                console.error('Error loading sensors:', error);
+            }
+        }
+
+        function renderSensorTypes() {
+            const container = document.getElementById('sensorTypes');
+            container.innerHTML = '';
+            
+            availableSensors.forEach(sensor => {
+                const div = document.createElement('div');
+                div.className = 'col-6 col-md-3 col-lg-2 mb-2';
+                div.innerHTML = `
+                    <div class="sensor-type" draggable="true" title="${sensor.description}">
+                        <i class="fas fa-microchip mb-1"></i><br>
+                        <small>${sensor.type}</small>
+                    </div>
+                `;
+                
+                const sensorType = div.querySelector('.sensor-type');
+                sensorType.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', sensor.type);
+                });
+                
+                container.appendChild(div);
+            });
+        }
+
+        async function startNewGame() {
+            showLoading(true);
+            playSound('buttonClick');
+            try {
+                const response = await fetch('/api/WebGame/start', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentGame = data.terrorist;
+                    selectedSensors = [];
+                    renderGame();
+                    showFeedback('New interrogation target identified!', 'success');
+                    playSound('sensorActivate');
+                } else {
+                    showFeedback('Error starting game: ' + data.error, 'danger');
+                    playSound('error');
+                }
+            } catch (error) {
+                showFeedback('Error starting game: ' + error.message, 'danger');
+                playSound('error');
+            }
+            showLoading(false);
+        }
+
+        function renderGame() {
+            if (!currentGame) return;
+
+            // Render terrorist info
+            const terroristInfo = document.getElementById('terroristInfo');
+            terroristInfo.innerHTML = `
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="info-card">
+                        <i class="fas fa-user-secret mb-2"></i>
+                        <h6>Target</h6>
+                        <p class="mb-0">${currentGame.name}</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="info-card">
+                        <i class="fas fa-star mb-2"></i>
+                        <h6>Rank</h6>
+                        <p class="mb-0">${currentGame.rank}</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="info-card">
+                        <i class="fas fa-flag mb-2"></i>
+                        <h6>Affiliation</h6>
+                        <p class="mb-0">${currentGame.affiliation}</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 mb-3">
+                    <div class="info-card">
+                        <i class="fas fa-microchip mb-2"></i>
+                        <h6>Sensor Slots</h6>
+                        <p class="mb-0">${currentGame.currentSlots || 0}/${currentGame.maxSlots}</p>
+                    </div>
+                </div>
+            `;
+
+            // Render sensor slots
+            const sensorGrid = document.getElementById('sensorGrid');
+            sensorGrid.innerHTML = '';
+            
+            for (let i = 0; i < currentGame.maxSlots; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'col-6 col-md-4 col-lg-3 mb-3';
+                slot.innerHTML = `
+                    <div class="sensor-slot" id="slot-${i}">
+                        <div class="text-center">
+                            <div class="fw-bold mb-1">Slot ${i + 1}</div>
+                            <div id="slot-content-${i}" class="small">Empty</div>
+                            <div id="sensor-actions-${i}" class="mt-2 d-none">
+                                <div class="btn-group-vertical btn-group-sm w-100">
+                                    <button class="btn btn-outline-success btn-sm" onclick="performSensorAction(${i}, 'repair')">
+                                        <i class="fas fa-wrench"></i> Repair
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="performSensorAction(${i}, 'upgrade')">
+                                        <i class="fas fa-arrow-up"></i> Upgrade
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm" onclick="performSensorAction(${i}, 'charge')">
+                                        <i class="fas fa-battery-half"></i> Charge
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const slotElement = slot.querySelector('.sensor-slot');
+                slotElement.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                slotElement.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const sensorType = e.dataTransfer.getData('text/plain');
+                    assignSensorToSlot(i, sensorType);
+                });
+                
+                sensorGrid.appendChild(slot);
+            }
+
+            updateProgress();
+
+            // Show clue panel if not leader
+            const cluePanel = document.getElementById('cluePanel');
+            if (currentGame.rank !== 'OrganizationLeader') {
+                cluePanel.classList.remove('d-none');
+            } else {
+                cluePanel.classList.add('d-none');
+            }
+        }
+
+        function assignSensorToSlot(slotIndex, sensorType) {
+            if (slotIndex >= currentGame.maxSlots) return;
+            
+            selectedSensors[slotIndex] = sensorType;
+            
+            const slotContent = document.getElementById(`slot-content-${slotIndex}`);
+            slotContent.textContent = sensorType;
+            
+            const slot = document.getElementById(`slot-${slotIndex}`);
+            slot.classList.add('occupied');
+            slot.classList.remove('correct', 'incorrect');
+            
+            document.getElementById('assignBtn').disabled = false;
+        }
+
+        async function assignSensors() {
+            if (!currentGame || selectedSensors.length === 0) return;
+            
+            showLoading(true);
+            playSound('buttonClick');
+            try {
+                const response = await fetch('/api/WebGame/assign-sensors', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sensorTypes: selectedSensors
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    updateProgress(data.progress);
+                    showSensorFeedback(data.feedback);
+                    playSound('sensorActivate');
+                    
+                    if (data.progress.isVictory) {
+                        showVictoryModal();
+                        playSound('victory');
+                    }
+                } else {
+                    showFeedback('Error assigning sensors: ' + data.error, 'danger');
+                    playSound('error');
+                }
+            } catch (error) {
+                showFeedback('Error assigning sensors: ' + error.message, 'danger');
+                playSound('error');
+            }
+            showLoading(false);
+        }
+
+        async function endTurn() {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/WebGame/end-turn', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentGame = data.terrorist;
+                    selectedSensors = [];
+                    renderGame();
+                    showFeedback('Turn ended. Terrorist counterattack may have occurred.', 'warning');
+                } else {
+                    showFeedback('Error ending turn: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showFeedback('Error ending turn: ' + error.message, 'danger');
+            }
+            showLoading(false);
+        }
+
+        async function resetGame() {
+            selectedSensors = [];
+            currentGame = null;
+            renderGame();
+            showFeedback('Game reset. Start a new interrogation.', 'info');
+        }
+
+        function updateProgress(progress = null) {
+            if (progress) {
+                document.getElementById('progressText').textContent = `${progress.correct}/${progress.total}`;
+                const percentage = progress.total > 0 ? (progress.correct / progress.total) * 100 : 0;
+                document.getElementById('progressFill').style.width = `${percentage}%`;
+            } else {
+                document.getElementById('progressText').textContent = '0/0';
+                document.getElementById('progressFill').style.width = '0%';
+            }
+        }
+
+        function showSensorFeedback(feedback) {
+            const content = document.getElementById('feedbackContent');
+            content.innerHTML = '';
+            
+            if (Array.isArray(feedback)) {
+                feedback.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'feedback-item';
+                    div.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Slot ${item.sensorFeedback.slot + 1} - ${item.sensorFeedback.type}</strong>
+                                <br><small class="text-white-50">${item.sensorFeedback.status}</small>
+                            </div>
+                            <i class="fas fa-microchip text-primary"></i>
+                        </div>
+                    `;
+                    content.appendChild(div);
+                });
+            }
+        }
+
+        function showVictoryModal() {
+            const modal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            const message = document.getElementById('victoryMessage');
+            message.textContent = 'Terrorist successfully exposed!';
+            modal.show();
+        }
+
+        function closeVictoryModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+            modal.hide();
+            markVictory();
+        }
+
+        async function markVictory() {
+            try {
+                const response = await fetch('/api/WebGame/victory', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showFeedback(data.message, 'success');
+                    if (data.hasMoreTerrorists) {
+                        startNewGame();
+                    } else {
+                        resetGame();
+                    }
+                }
+            } catch (error) {
+                showFeedback('Error marking victory: ' + error.message, 'danger');
+            }
+        }
+
+        function showFeedback(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            // You could add Bootstrap toast notifications here
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const gamePanel = document.getElementById('gamePanel');
+            
+            if (show) {
+                loading.classList.remove('d-none');
+                gamePanel.classList.add('d-none');
+            } else {
+                loading.classList.add('d-none');
+                gamePanel.classList.remove('d-none');
+            }
+        }
+
+        async function fetchClue() {
+            if (!currentGame) return;
+            const clueText = document.getElementById('clueText');
+            clueText.textContent = 'Loading...';
+            try {
+                const response = await fetch(`/api/WebGame/clue/${currentGame.id}`);
+                const data = await response.json();
+                if (data.success) {
+                    clueText.textContent = data.clue;
+                } else {
+                    clueText.textContent = 'No clue available.';
+                }
+            } catch (error) {
+                clueText.textContent = 'Error fetching clue.';
+            }
+        }
+
+        async function submitHierarchy() {
+            const input = document.getElementById('hierarchyInput').value.trim();
+            const result = document.getElementById('hierarchyResult');
+            if (!input) {
+                result.textContent = 'Please enter a list of IDs.';
+                return;
+            }
+            const ids = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (ids.length < 2) {
+                result.textContent = 'Enter at least two IDs.';
+                return;
+            }
+            result.textContent = 'Checking...';
+            try {
+                const response = await fetch('/api/WebGame/check-hierarchy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ PersonIds: ids })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (data.isValid) {
+                        result.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i>Correct hierarchy!';
+                        showScorePanel(100);
+                    } else {
+                        result.innerHTML = '<i class="fas fa-times-circle text-danger me-2"></i>Incorrect hierarchy.';
+                    }
+                } else {
+                    result.textContent = 'Error checking hierarchy.';
+                }
+            } catch (error) {
+                result.textContent = 'Error checking hierarchy.';
+            }
+        }
+
+        function showScorePanel(points) {
+            document.getElementById('scorePanel').classList.remove('d-none');
+            document.getElementById('scoreMsg').textContent = `You scored ${points} points!`;
+        }
+
+        async function submitScore() {
+            const name = document.getElementById('playerName').value.trim();
+            const msg = document.getElementById('scoreMsg');
+            if (!name) {
+                msg.textContent = 'Please enter your name.';
+                return;
+            }
+            const points = parseInt(msg.textContent.match(/\d+/)?.[0] || '0');
+            msg.textContent = 'Submitting...';
+            try {
+                const response = await fetch('/api/WebGame/submit-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ PlayerName: name, Points: points })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    msg.innerHTML = '<i class="fas fa-check-circle text-success me-2"></i>Score saved!';
+                    loadLeaderboard();
+                } else {
+                    msg.textContent = 'Error saving score.';
+                }
+            } catch (error) {
+                msg.textContent = 'Error saving score.';
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('/api/WebGame/top-scores');
+                const data = await response.json();
+                const tbody = document.getElementById('leaderboardTable');
+                tbody.innerHTML = '';
+                if (data.success && Array.isArray(data.scores)) {
+                    data.scores.forEach((score, idx) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><span class="badge bg-primary">${idx + 1}</span></td>
+                            <td>${score.playerName}</td>
+                            <td><span class="badge bg-success">${score.points}</span></td>
+                            <td><small>${new Date(score.timestamp).toLocaleString()}</small></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                // ignore
+            }
+        }
+
+        async function loadPeopleList() {
+            try {
+                const response = await fetch('/api/WebGame/all-people');
+                const data = await response.json();
+                const tbody = document.getElementById('peopleListTable');
+                tbody.innerHTML = '';
+                if (data.success && Array.isArray(data.people)) {
+                    data.people.forEach(person => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><span class="badge bg-secondary">${person.id}</span></td>
+                            <td>${person.name}</td>
+                            <td>${person.superiorId ? `<span class="badge bg-info">${person.superiorId}</span>` : '<span class="text-muted">-</span>'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                // ignore
+            }
+        }
+
+        // Auto-refresh game status
+        setInterval(async () => {
+            if (currentGame) {
+                try {
+                    const response = await fetch('/api/WebGame/status');
+                    const data = await response.json();
+                    if (data.success) {
+                        currentGame = data.terrorist;
+                        updateProgress(data.progress);
+                    }
+                } catch (error) {
+                    // Silent error for auto-refresh
+                }
+                
+                // Update sensors (cooldowns, charging, etc.)
+                await updateSensors();
+            }
+        }, 5000);
+
+        async function interrogate() {
+            const question = document.getElementById('questionInput').value.trim();
+            if (!question) {
+                showFeedback('Please enter a question to ask.', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            playSound('interrogation');
+            try {
+                const response = await fetch('/api/WebGame/interrogate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayInterrogationResult(data);
+                    updatePersonalityInfo(data);
+                    playSound('buttonClick');
+                } else {
+                    showFeedback('Error during interrogation: ' + data.error, 'danger');
+                    playSound('error');
+                }
+            } catch (error) {
+                showFeedback('Error during interrogation: ' + error.message, 'danger');
+                playSound('error');
+            }
+            showLoading(false);
+        }
+
+        function displayInterrogationResult(data) {
+            const responseDiv = document.getElementById('interrogationResponse');
+            const responseText = document.getElementById('responseText');
+            const responseDetails = document.getElementById('responseDetails');
+            const aiAnalysis = document.getElementById('aiAnalysis');
+            
+            responseText.textContent = data.response;
+            
+            let details = `Personality: ${data.personality}`;
+            if (data.isLying) {
+                details += ' | LYING!';
+            }
+            if (data.unlocksHint && data.hint) {
+                details += ` | Hint: ${data.hint}`;
+            }
+            
+            responseDetails.textContent = details;
+            
+            // Display AI analysis
+            if (data.confidence !== undefined && data.reasoning) {
+                const confidencePercent = Math.round(data.confidence * 100);
+                aiAnalysis.textContent = `AI Analysis: ${confidencePercent}% confidence - ${data.reasoning}`;
+            } else {
+                aiAnalysis.textContent = '';
+            }
+            
+            responseDiv.classList.remove('d-none');
+            
+            if (data.isLying) {
+                responseDiv.style.borderLeftColor = '#dc3545';
+            } else if (data.unlocksHint) {
+                responseDiv.style.borderLeftColor = '#198754';
+            }
+        }
+
+        function updatePersonalityInfo(data) {
+            document.getElementById('personalityDisplay').textContent = data.personality;
+            document.getElementById('interrogationCount').textContent = data.interrogationCount;
+            document.getElementById('hasLiedDisplay').textContent = data.hasLied ? 'Yes' : 'No';
+            document.getElementById('hasLiedDisplay').className = data.hasLied ? 'badge bg-danger ms-2' : 'badge bg-success ms-2';
+        }
+
+        async function performSensorAction(slotIndex, action) {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/WebGame/sensor-action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        slotIndex: slotIndex, 
+                        action: action,
+                        amount: action === 'repair' ? 25 : null
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showFeedback(data.message, 'success');
+                    updateSensorDisplay(slotIndex, data.sensor);
+                } else {
+                    showFeedback('Error performing sensor action: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showFeedback('Error performing sensor action: ' + error.message, 'danger');
+            }
+            showLoading(false);
+        }
+
+        function updateSensorDisplay(slotIndex, sensor) {
+            const slotContent = document.getElementById(`slot-content-${slotIndex}`);
+            const sensorActions = document.getElementById(`sensor-actions-${slotIndex}`);
+            const slot = document.getElementById(`slot-${slotIndex}`);
+            
+            slotContent.innerHTML = `
+                <div class="small">
+                    <strong>${sensor.type}</strong><br>
+                    Battery: ${sensor.batteryLevel.toFixed(1)}%<br>
+                    Durability: ${sensor.durability}/${sensor.maxDurability}<br>
+                    ${sensor.isUpgraded ? `Level ${sensor.upgradeLevel}` : ''}
+                    ${sensor.isBroken ? '<br><span class="text-danger">BROKEN</span>' : ''}
+                    ${sensor.isOnCooldown ? `<br><span class="text-warning">Cooldown: ${sensor.cooldownTurns}</span>` : ''}
+                    ${sensor.isCharging ? `<br><span class="text-info">Charging: ${sensor.chargeTime}/${sensor.maxChargeTime}</span>` : ''}
+                </div>
+            `;
+            
+            sensorActions.classList.remove('d-none');
+            
+            // Update slot appearance
+            slot.classList.add('occupied');
+            if (sensor.isBroken) {
+                slot.classList.add('incorrect');
+            } else if (sensor.isUpgraded) {
+                slot.classList.add('correct');
+            }
+        }
+
+        async function updateSensors() {
+            try {
+                const response = await fetch('/api/WebGame/update-sensors', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    data.sensors.forEach(sensorData => {
+                        updateSensorDisplay(sensorData.slot, sensorData.sensor);
+                    });
+                }
+            } catch (error) {
+                // Silent error for auto-update
+            }
+        }
+    </script>
+</body>
+</html> 

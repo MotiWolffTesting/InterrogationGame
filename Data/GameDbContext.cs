@@ -10,6 +10,8 @@ public class GameDbContext : DbContext
     public DbSet<Person> People { get; set; }
     // DbSet for managing GameLog entities
     public DbSet<GameLog> GameLogs { get; set; }
+    // DbSet for managing Score entities
+    public DbSet<Score> Scores { get; set; }
 
     // Constructor that accepts DbContextOptions for configuration
     public GameDbContext(DbContextOptions<GameDbContext> options) : base(options)
@@ -36,6 +38,18 @@ public class GameDbContext : DbContext
             entity.Property(e => e.Affiliation).IsRequired().HasMaxLength(100);
             // Set default value for IsExposed to false
             entity.Property(e => e.IsExposed).HasDefaultValue(false);
+            // New: SuperiorId as a foreign key
+            entity.HasOne<Person>()
+                .WithMany()
+                .HasForeignKey(e => e.SuperiorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // AI & Behavior properties
+            entity.Property(e => e.Personality).HasDefaultValue(PersonalityType.Neutral).HasConversion<string>();
+            entity.Property(e => e.InterrogationCount).HasDefaultValue(0);
+            entity.Property(e => e.LastInterrogation).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.HasLied).HasDefaultValue(false);
+            // Note: PreviousResponses will be handled as a simple string list in memory
         });
 
         // Configure GameLog entity
@@ -54,6 +68,16 @@ public class GameDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.PersonId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure Score entity
+        modelBuilder.Entity<Score>(entity =>
+        {
+            entity.ToTable("scores");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PlayerName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Points).IsRequired();
+            entity.Property(e => e.Timestamp).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }

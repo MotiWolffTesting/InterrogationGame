@@ -12,66 +12,93 @@ public static class SeedData
             return; // Database has been seeded
         }
 
-        var people = new List<Person>
+        // Step 1: Create the leader
+        var leader = new Person
+        {
+            FirstName = "Ali",
+            LastName = "Reza",
+            Location = "Tehran",
+            FavoriteWeapon = "FN FAL",
+            ContactNumber = "+98-21-1234",
+            SecretPhrase = "The lion roars at dawn",
+            Affiliation = "Quds Force",
+            IsExposed = false
+        };
+        context.People.Add(leader);
+        await context.SaveChangesAsync();
+
+        // Step 2: Create 2 squad leaders, each reporting to the leader
+        var squadLeaders = new List<Person>
         {
             new Person
             {
-                FirstName = "Assaf",
-                LastName = "Lutz",
-                Location = "New York",
-                FavoriteWeapon = "AK-47",
-                ContactNumber = "+1-555-0123",
-                SecretPhrase = "The eagle flies at midnight",
-                Affiliation = "Shaldag",
-                IsExposed = false
+                FirstName = "Hassan",
+                LastName = "Jafari",
+                Location = "Shiraz",
+                FavoriteWeapon = "M16",
+                ContactNumber = "+98-71-5678",
+                SecretPhrase = "The river runs deep",
+                Affiliation = "Quds Force",
+                IsExposed = false,
+                SuperiorId = leader.Id
             },
             new Person
             {
-                FirstName = "Moti",
-                LastName = "Luchim",
-                Location = "Miami",
-                FavoriteWeapon = "Glock 17",
-                ContactNumber = "+1-555-0124",
-                SecretPhrase = "Red sky at night",
-                Affiliation = "Maglan",
-                IsExposed = false
-            },
-            new Person
-            {
-                FirstName = "Natan",
-                LastName = "Lahem Barosh",
-                Location = "Dubai",
-                FavoriteWeapon = "MP5",
-                ContactNumber = "+971-555-0125",
-                SecretPhrase = "Desert wind whispers",
-                Affiliation = "Sayeret Matkal",
-                IsExposed = false
-            },
-            new Person
-            {
-                FirstName = "Sarah",
-                LastName = "Cohen",
-                Location = "Tel Aviv",
-                FavoriteWeapon = "Uzi",
-                ContactNumber = "+972-555-0126",
-                SecretPhrase = "Mountain shadows dance",
-                Affiliation = "Delta Unit",
-                IsExposed = false
-            },
-            new Person
-            {
-                FirstName = "Vladimir",
-                LastName = "Petrov",
-                Location = "Moscow",
-                FavoriteWeapon = "Dragunov",
-                ContactNumber = "+7-555-0127",
-                SecretPhrase = "Winter's first snow",
-                Affiliation = "Epsilon Team",
-                IsExposed = false
+                FirstName = "Omid",
+                LastName = "Karimi",
+                Location = "Isfahan",
+                FavoriteWeapon = "Steyr AUG",
+                ContactNumber = "+98-31-4321",
+                SecretPhrase = "The falcon circles high",
+                Affiliation = "Quds Force",
+                IsExposed = false,
+                SuperiorId = leader.Id
             }
         };
+        context.People.AddRange(squadLeaders);
+        await context.SaveChangesAsync();
 
-        await context.People.AddRangeAsync(people);
+        // Step 3: Create 3 foot soldiers, each reporting to a squad leader
+        var footSoldiers = new List<Person>
+        {
+            new Person
+            {
+                FirstName = "Reza",
+                LastName = "Moradi",
+                Location = "Tabriz",
+                FavoriteWeapon = "AK-47",
+                ContactNumber = "+98-41-8765",
+                SecretPhrase = "The wind whispers east",
+                Affiliation = "Quds Force",
+                IsExposed = false,
+                SuperiorId = squadLeaders[0].Id
+            },
+            new Person
+            {
+                FirstName = "Saeed",
+                LastName = "Rahimi",
+                Location = "Mashhad",
+                FavoriteWeapon = "G3",
+                ContactNumber = "+98-51-3456",
+                SecretPhrase = "The night is silent",
+                Affiliation = "Quds Force",
+                IsExposed = false,
+                SuperiorId = squadLeaders[0].Id
+            },
+            new Person
+            {
+                FirstName = "Mehdi",
+                LastName = "Farhadi",
+                Location = "Ahvaz",
+                FavoriteWeapon = "Uzi",
+                ContactNumber = "+98-61-6543",
+                SecretPhrase = "The desert hides secrets",
+                Affiliation = "Quds Force",
+                IsExposed = false,
+                SuperiorId = squadLeaders[1].Id
+            }
+        };
+        context.People.AddRange(footSoldiers);
         await context.SaveChangesAsync();
     }
 }
