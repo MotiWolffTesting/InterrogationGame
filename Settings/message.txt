@@ -1,0 +1,214 @@
+✨ Project: Operation Chainbreaker – Expose the Terrorist Network
+
+🎩 Overview
+You are part of a special military intelligence unit. A terror suspect has been captured.
+ Your job is to interrogate this terrorist, uncover their true identity, and log the exposure in the database.
+This is a C# + MySQL project focused on clean OOP, SOLID principles, turn-based logic, and query-driven data analysis. The core mechanic revolves around using sensors to uncover the hidden identity of a terrorist while responding to their escalating countermeasures.
+
+🔐 Game Setup
+Terrorist Structure
+When the game starts, the system randomly selects 1 person from the people SQL table.
+
+
+This person is then assigned a random terrorist type, which defines a fixed combination of sensor types required to expose them.
+
+
+The rank is either determined randomly or looked up from the database, and controls how many sensors are required and what kind of counterattacks are possible.
+
+
+Rank
+Sensor Slots
+Counterattack Behavior
+Foot Soldier
+2
+No counterattack
+Squad Leader
+4
+Every 3 turns: removes 1 random sensor
+Senior Commander
+6
+Every 3 turns: removes 2 random sensors
+Organization Leader
+8
+Every 3 turns: removes 1 sensor
+
+
+
+
+Every 10 turns: resets weakness list and removes all attached sensors
+
+Each terrorist has a list of sensor slots where sensors can be attached, replaced, or removed. The combination of their type and rank determines the challenge level.
+
+Sensor Structure
+Sensors are the player's tools for probing the terrorist's weaknesses.
+Every sensor has:
+
+
+A type (e.g., Audio, Thermal, etc.)
+
+
+A battery level (starting at 100%)
+
+
+A method:
+
+	 void Activate()
+When activated:
+
+
+Drains its battery (not all sensor types)
+
+
+May trigger a special effect depending on the sensor type
+
+
+Internally checks if it matches one of the terrorist’s secret weaknesses
+
+
+Some sensors may break, lock, or behave differently over time. Sensors are stateful and can only be activated under specific conditions.
+
+
+
+
+
+
+
+
+
+
+📡 Sensor Types and Abilities
+Sensor Type
+Description
+Audio Sensor
+Basic sensor. No special ability.
+Thermal Sensor
+Reveals one correct sensor type from the secret list. Always reveals the same one.
+Pulse Sensor
+Can only activate once every 2 turns. Recharges automatically.
+Motion Sensor
+Can activate 3 times total, then breaks.
+Magnetic Sensor
+If matched correctly, cancel the ability of the terrorist 2 times in random turns (just 2 times for a specific sensor in each interrogation).
+Signal Sensor
+Reveals one field of information about the terrorist (e.g., rank, affiliation).
+Light Sensor
+Reveals if sensors are in the correct slots (correct type and position) - gives specific (for example: Signal sensor is correct, Audio sensor is correct)
+Chemical Sensor
+Detects false positives (sensors that match another terrorist type but not this one).
+
+
+Important Note: terrorists can have multiple sensors with the same type!
+For example: a foot soldier has 2 sensors - they can be 2 thermals, and then the player needs to attach 2 sensors with the same type in order to reveal the terrorist.
+
+🕹 Gameplay Loop
+When the game starts:
+a person is selected randomly from the people table.
+a type of terrorist is selected randomly (option - don’t do it randomly, start from the lowest rank and only after you beat the terrorist you can go to a higher ranking terrorist).
+an instance of the terrorist type is created with the data you loaded from mysql.
+now the interrogation starts:
+Each turn, the player may perform one action:
+Attach a new sensor to a free slot
+
+
+Replace or remove an existing sensor
+
+
+After a sensor change, all the activate functions of the attached sensors are fired, and a response will show:
+“X/Y sensors are correct”
+If X equals Y, the terrorist is fully exposed and the program must update the database (is_exposed = true), and the game ends. Next time - a new person will be selected - but only if he hasn’t been exposed yet.
+💾 Database Schema
+CREATE TABLE people (
+  id INT PRIMARY KEY,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  location VARCHAR(100),
+  favorite_weapon VARCHAR(100),
+  contact_number VARCHAR(50),
+  secret_phrase VARCHAR(100),
+  affiliation VARCHAR(100),
+  is_exposed BOOLEAN DEFAULT FALSE
+);
+
+
+📊 SQL + Analysis
+Log player actions in SQL (turns, attempts, guesses)
+
+
+🚀 Git + GitHub Requirements
+You must follow proper version control practices:
+Create a new GitHub repo
+
+
+Work in a feature branch (never commit directly to main)
+
+
+Use descriptive commit messages
+
+
+Submit changes using Pull Requests (PRs)
+
+
+Tag PRs meaningfully and add descriptions (e.g., screenshots, summary of logic)
+
+
+Add detailed README - your name, signatures, description and flow.
+
+
+
+✨ Extra Features (Optional)
+🧩 Advanced Gameplay
+Interrogate multiple terrorists: 3 low-level → 2 mid-level → 1 leader
+
+
+Each lower rank holds SQL-based clues about their superior
+
+
+Students must use SQL queries to discover the chain and submit the correct hierarchy:
+
+
+bool CheckHierarchy(List<int> submittedIds);
+
+🧠 AI & Behavior
+Terrorists lie or adapt over time
+
+
+Add personalities (aggressive, deceptive, fearful)
+
+
+Conditions for unlocking hints (e.g., only after certain actions)
+
+
+⚙ Sensor Extensions
+Sensors can be upgraded, fused, or repaired
+
+
+Add cooldowns, durability, and charging mechanics
+
+
+📊 SQL + Analysis
+Create a scoring system and store it in a scores table
+
+
+🧰 Architecture
+Load sensors dynamically from plugins
+
+
+Use dependency injection to inject terrorist behaviors
+
+
+Write unit tests for sensor activation and terrorist logic
+
+
+🖥 UI/UX
+WinForms/WPF drag-and-drop sensor slots
+
+
+Visual battery and feedback display
+
+
+Dark mode and sound effects
+
+
+
+
+Let your creativity shine. Think strategically, write clean code, and enjoy the mission!
