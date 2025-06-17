@@ -16,7 +16,7 @@ public class ConsoleGame
 
     public async Task RunAsync()
     {
-        Console.WriteLine("Welcome to Operation Chainbreaker!");
+        Console.WriteLine("Welcome to the Interrogation Game!");
         await _gameManager.StartNewGame();
         PrintTerroristInfo();
         bool running = true;
