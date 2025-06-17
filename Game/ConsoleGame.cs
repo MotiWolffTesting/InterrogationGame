@@ -3,6 +3,8 @@ using InterrogationGame.Models;
 using InterrogationGame.Services;
 using InterrogationGame.Models.Sensors;
 
+namespace InterrogationGame.Game;
+
 public class ConsoleGame
 {
     private readonly GameManager _gameManager;
