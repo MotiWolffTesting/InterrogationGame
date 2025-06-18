@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using InterrogationGame.Models;
 
 namespace InterrogationGame.Models.Terrorists;
 
@@ -11,7 +12,11 @@ public class OrganizationLeader : Terrorist
         if (TurnCount % 10 == 0)
         {
             SensorSlots.Clear();
-            RequiredSensorTypes.Clear();
+
+            var allTypes = Enum.GetValues<SensorType>();
+            RequiredSensorTypes = Enumerable.Range(0, MaxSensorSlots)
+                .Select(_ => allTypes[new Random().Next(allTypes.Length)])
+                .ToList();
         }
         else if (TurnCount % 3 == 0)
         {
