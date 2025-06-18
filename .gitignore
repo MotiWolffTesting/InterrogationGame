@@ -288,3 +288,5 @@ FodyWeavers.xsd
 
 # appsetting.json
 appsettings.json
+
+venv/
